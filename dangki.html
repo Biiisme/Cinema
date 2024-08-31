@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <form class="register-form">
+            <h2>Đăng Ký</h2>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="username">Tên đăng nhập:</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">Mật khẩu:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <label for="confirm-password">Xác minh:</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+            
+            <div class="captcha">
+                <input type="checkbox" id="not-a-robot" name="not-a-robot" required>
+                <label for="not-a-robot">Tôi không phải là người máy</label>
+            </div>
+            
+            <button type="submit">Tạo tài khoản</button>
+        </form>
+        <div class="image-section">
+            <img src="thang.jpg" alt="Cute monster with popcorn and drink">
+        </div>
+    </div>
+</body>
+</html>
