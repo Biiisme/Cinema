@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
+    background-color: #484444;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -78,4 +78,11 @@ button:hover {
 .image-section img {
     max-width: 90%;
     height: auto;
+}
+.register-form a{
+    text-decoration: none;
+    color: blue;
+}
+.dangky {
+    margin: 10px 0 10px 0;
 }

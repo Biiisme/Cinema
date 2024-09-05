@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="CSS/style1.css">
     <title>Đăng Nhập</title>
 </head>
 <body>
     <div class="container">
-        <h1>ĐĂNG NHẬP</h1>
-        <form action="/login" method="post">
+        
+        <form class="register-form">
+            <h1>ĐĂNG NHẬP</h1>
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
 
@@ -17,8 +18,15 @@
             <input type="password" id="password" name="password" required>
 
             <button type="submit">Login</button>
+            <div class="dangky">
+                <p4>Không có tài khoản ?</p4>
+                <a href="dangki.html"> Đăng ký tại đây</a>
+            </div>
+                <a href="#">Quên mật khẩu</a>
         </form>
-        <a href="./register.html">Không có tài khoản ? Đăng ký tại đây</a>
+        <div class="image-section">
+            <img src="image/logo.png" alt="Cute monster with popcorn and drink">
+        </div>
     </div>
 </body>
 </html>
