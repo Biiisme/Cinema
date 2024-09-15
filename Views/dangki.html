@@ -8,13 +8,11 @@
 </head>
 <body>
     <div class="container">
-        <form class="register-form">
+        <form class="register-form" id="registrationForm">
             <h2>Đăng Ký</h2>
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
-            
-            <label for="username">Tên đăng nhập:</label>
-            <input type="text" id="username" name="username" required>
+        
             
             <label for="password">Mật khẩu:</label>
             <input type="password" id="password" name="password" required>
@@ -22,13 +20,6 @@
             <label for="password">Nhập lại mật khẩu:</label>
             <input type="password" id="password" name="password" required>
             
-            <label for="confirm-password">Xác minh:</label>
-            <input type="password" id="confirm-password" name="confirm-password" required>
-            
-            <div class="captcha">
-                <input type="checkbox" id="not-a-robot" name="not-a-robot" required>
-                <label for="not-a-robot">Tôi không phải là người máy</label>
-            </div>
             
             <button type="submit">Tạo tài khoản</button>
             <a href="login.html">bạn đã có tài khoản</a>
@@ -36,6 +27,31 @@
         <div class="image-section">
             <img src="image/logo.png" alt="Cute monster with popcorn and drink">
         </div>
+        <p id="message">
+            <script>
+                document.getElementById('registrationForm').addEventListener('submit', function(event) {
+                    event.preventDefault() ;
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+        
+                    fetch('/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('message').innerText = data.message;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            </script>
+
+        </p>
     </div>
 </body>
 </html>
