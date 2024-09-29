@@ -3,18 +3,28 @@ package db
 import (
 	"fmt"
 
-	"gorm.io/driver/sqlserver"
-	"gorm.io/gorm"
+	"github.com/jmoiron/sqlx"
+	"github.com/labstack/gommon/log"
+	_ "github.com/lib/pq"
 )
 
-var DB *gorm.DB
+type Sql struct {
+	Db       *sqlx.DB
+	Host     string
+	Port     int
+	Usename  string
+	Password string
+	DBName   string
+}
 
-func ConnectDB() {
-	var err error
-	dsn := "sqlserver://sa:19022003@localhost:1433?database=dangki"
-	DB, err = gorm.Open(sqlserver.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("Failed to connect to database")
+func (s *Sql) Connect() {
+	dataSource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", s.Host, s.Port, s.Usename, s.Password, s.DBName)
+	s.Db = sqlx.MustConnect("postgres", dataSource)
+	if err := s.Db.Ping(); err != nil {
+		log.Error(err.Error())
 	}
-	fmt.Println("Connect database ok")
+	fmt.Println("COnnect datebase ok")
+}
+func (s *Sql) Close() {
+	s.Db.Close()
 }
