@@ -7,6 +7,7 @@ import (
 	"cinema/router"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 func main() {
@@ -20,7 +21,8 @@ func main() {
 	sql.Connect()
 	defer sql.Close()
 	e := echo.New()
-
+	e.Use(middleware.CORS())
+	e.Use(middleware.BodyLimit("2M"))
 	userHandler := handler.Userhandler{
 		UserRepo: repo_impl.NewUserRepo(sql),
 	}
@@ -30,5 +32,5 @@ func main() {
 	}
 
 	api.SetupRouter()
-	e.Logger.Fatal(e.Start(":5500"))
+	e.Logger.Fatal(e.Start(":3000"))
 }

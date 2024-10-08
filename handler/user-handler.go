@@ -19,6 +19,14 @@ type Userhandler struct {
 
 // user sign up------------------------------------------------------------------
 func (u *Userhandler) HandleSignUp(c echo.Context) error {
+	// Kiểm tra Content-Type
+	if c.Request().Header.Get("Content-Type") != "application/json" {
+		return c.JSON(http.StatusUnsupportedMediaType, model.Response{
+			StatusCode: http.StatusUnsupportedMediaType,
+			Message:    "Unsupported Media Type",
+			Data:       nil,
+		})
+	}
 	req := req.ReqSignUp{}
 	if err := c.Bind(&req); err != nil {
 		log.Error(err.Error())

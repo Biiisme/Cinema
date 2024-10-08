@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=127.0.0.1
+      - DB_USER=postgres
+      - DB_PASSWORD=19022003
+      - DB_NAME=userlogin
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 19022003
+      POSTGRES_DB: userlogin
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
