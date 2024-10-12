@@ -3,21 +3,22 @@ package router
 import (
 	"cinema/handler"
 
-	"github.com/labstack/echo"
+	"github.com/gin-gonic/gin"
 )
 
 type API struct {
-	Echo        *echo.Echo
-	Userhandler handler.Userhandler
+	Router      *gin.Engine
+	UserHandler handler.UserHandler
+	FilmHandler handler.FilmHandler
 }
 
 func (api *API) SetupRouter() {
-	api.Echo.POST("/user/sign-in", api.Userhandler.HandleSignIn)
-	api.Echo.POST("/user/sign-up", api.Userhandler.HandleSignUp)
+	// Định nghĩa các route cho user
+	api.Router.POST("/user/sign-in", api.UserHandler.HandleSignIn) //Lấy thông tin user
+	api.Router.POST("/user/sign-up", api.UserHandler.HandleSignUp) //Lưu user
 
-	api.Echo.POST("/user/sign-up", api.Userhandler.HandleSignUp)
-	api.Echo.POST("/user/sign-up", api.Userhandler.HandleSignUp)
-	api.Echo.POST("/user/sign-up", api.Userhandler.HandleSignUp)
-	api.Echo.POST("/user/sign-up", api.Userhandler.HandleSignUp)
-
+	// Định nghĩa các route cho phim
+	api.Router.POST("/film", api.FilmHandler.HandleSaveFilm) // Lưu phim mới
+	api.Router.GET("/film/:id", api.FilmHandler.GetFilmByID) // Lấy thông tin phim theo ID
+	api.Router.GET("/films", api.FilmHandler.GetAllFilms)    // Lấy tất cả phim
 }

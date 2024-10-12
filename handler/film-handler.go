@@ -4,76 +4,86 @@ import (
 	"cinema/model"
 	"cinema/model/req"
 	"cinema/repository"
-	"encoding/json"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	uuid "github.com/google/uuid"
-	"github.com/gorilla/mux"
-	"github.com/labstack/echo"
-	"github.com/labstack/gommon/log"
 )
 
 type FilmHandler struct {
-	Repo repository.FilmRepo
+	FilmRepo repository.FilmRepo
 }
 
 func NewFilmHandler(repo repository.FilmRepo) *FilmHandler {
-	return &FilmHandler{Repo: repo}
+	return &FilmHandler{FilmRepo: repo}
 }
 
-// SaveFilm lưu phim mới
-
-func (u *FilmHandler) HandleSaveFilm(c echo.Context) error {
+// HandleSaveFilm lưu phim mới
+func (h *FilmHandler) HandleSaveFilm(c *gin.Context) {
 	// Kiểm tra Content-Type
-	if c.Request().Header.Get("Content-Type") != "application/json" {
-		return c.JSON(http.StatusUnsupportedMediaType, model.Response{
+	if c.GetHeader("Content-Type") != "application/json" {
+		c.JSON(http.StatusUnsupportedMediaType, model.Response{
 			StatusCode: http.StatusUnsupportedMediaType,
 			Message:    "Unsupported Media Type",
 			Data:       nil,
 		})
+		return
 	}
 
-	req := req.ReqFilm{}
-	if err := c.Bind(&req); err != nil {
-		log.Error(err.Error())
-		return c.JSON(http.StatusBadRequest, model.Response{
+	var req req.ReqFilm
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
 			Data:       nil,
 		})
+		return
 	}
 
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		log.Error(err.Error())
-		return c.JSON(http.StatusBadRequest, model.Response{
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, err.Error())
+		}
+		c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
-			Message:    err.Error(),
+			Message:    "Invalid data",
+			Data:       validationErrors,
+		})
+		return
+	}
+
+	FilmId, err := uuid.NewUUID()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to generate UUID",
 			Data:       nil,
 		})
+		return
 	}
-	FilmId, err := uuid.NewUUID()
-	// Tạo đối tượng Film từ yêu cầu
+
 	film := model.Film{
-		FilmId:      FilmId.String(),
+		FilmId:      FilmId.String(), //Hỏi lại a tuệ
 		FilmName:    req.FilmName,
 		Thoiluong:   req.Thoiluong,
 		Gioihantuoi: req.Gioihantuoi,
 		ImageFilm:   req.ImageFilm,
 	}
 
-	// Gọi hàm để lưu phim vào cơ sở dữ liệu
-	film, err = u.FilmRepo.SaveFilm(c.Request().Context(), film)
+	film, err = h.FilmRepo.SaveFilm(c.Request.Context(), film)
 	if err != nil {
-		return c.JSON(http.StatusConflict, model.Response{
+		c.JSON(http.StatusConflict, model.Response{
 			StatusCode: http.StatusConflict,
 			Message:    err.Error(),
 			Data:       nil,
 		})
+		return
 	}
 
-	return c.JSON(http.StatusOK, model.Response{
+	c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
 		Message:    "Lưu phim thành công",
 		Data:       film,
@@ -81,28 +91,41 @@ func (u *FilmHandler) HandleSaveFilm(c echo.Context) error {
 }
 
 // GetFilmByID lấy thông tin phim theo ID
-func (h *FilmHandler) GetFilmByID(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id := params["id"]
+func (h *FilmHandler) GetFilmByID(c *gin.Context) {
+	id := c.Param("id")
 
-	film, err := h.Repo.GetFilmByID(r.Context(), id)
+	film, err := h.FilmRepo.GetFilmByID(c.Request.Context(), id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		c.JSON(http.StatusNotFound, model.Response{
+			StatusCode: http.StatusNotFound,
+			Message:    "Film not found",
+			Data:       nil,
+		})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(film)
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Lấy phim thành công",
+		Data:       film,
+	})
 }
 
 // GetAllFilms lấy tất cả phim
-func (h *FilmHandler) GetAllFilms(w http.ResponseWriter, r *http.Request) {
-	films, err := h.Repo.GetAllFilms(r.Context())
+func (h *FilmHandler) GetAllFilms(c *gin.Context) {
+	films, err := h.FilmRepo.GetAllFilms(c.Request.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			Data:       nil,
+		})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(films)
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Lấy tất cả phim thành công",
+		Data:       films,
+	})
 }

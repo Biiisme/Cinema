@@ -1,0 +1,6 @@
+# Bỏ qua các thư mục không cần thiết
+node_modules
+vendor
+.env
+.DS_Store
+*.log

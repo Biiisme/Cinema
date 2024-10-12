@@ -3,12 +3,12 @@ package model
 import "time"
 
 type User struct {
-	UserId    string    `json:"-" db:"user_id, omitempty"`
-	FullName  string    `json:"fullName,omitempty" db:"full_name, omitempty"`
-	Email     string    `json:"email,omitempty" db:"email, omitempty"`
-	Password  string    `json:"-" db:"password, omitempty"`
-	Role      string    `json:"role,omitempty" db:"role, omitempty"`
-	CreatedAt time.Time `json:"-" db:"created_at, omitempty"`
-	UpdatedAt time.Time `json:"-" db:"updated_at, omitempty"`
-	Token     string    `json:"token,omitempty"`
+	UserId    string    `json:"userId,omitempty" gorm:"column:user_id"`
+	Email     string    `json:"email,omitempty" gorm:"column:email"`
+	Password  string    `json:"password,omitempty" gorm:"column:password"`
+	Role      string    `json:"role,omitempty" gorm:"column:role"`
+	FullName  string    `json:"fullName,omitempty" gorm:"column:full_name"`
+	Token     string    `json:"token,omitempty" gorm:"column:token"` // Thêm cột token vào đây
+	CreatedAt time.Time `json:"createdAt,omitempty" gorm:"column:created_at"`
+	UpdatedAt time.Time `json:"updatedAt,omitempty" gorm:"column:updated_at"`
 }

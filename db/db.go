@@ -1,30 +1,30 @@
 package db
 
 import (
+	"cinema/model"
 	"fmt"
+	"log"
 
-	"github.com/jmoiron/sqlx"
-	"github.com/labstack/gommon/log"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-type Sql struct {
-	Db       *sqlx.DB
-	Host     string
-	Port     int
-	Usename  string
-	Password string
-	DBName   string
+type GormDB struct {
+	DB *gorm.DB
 }
 
-func (s *Sql) Connect() {
-	dataSource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", s.Host, s.Port, s.Usename, s.Password, s.DBName)
-	s.Db = sqlx.MustConnect("postgres", dataSource)
-	if err := s.Db.Ping(); err != nil {
-		log.Error(err.Error())
+func NewGormDB(host, user, password, dbname string, port int) *GormDB {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", host, user, password, dbname, port)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Could not connect to database: %v", err)
 	}
-	fmt.Println("COnnect datebase ok")
+
+	return &GormDB{DB: db}
 }
-func (s *Sql) Close() {
-	s.Db.Close()
+
+func (g *GormDB) Migrate() {
+	if err := g.DB.AutoMigrate(&model.Film{}, &model.User{}); err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
 }

@@ -2,59 +2,58 @@ package repo_impl
 
 import (
 	"cinema/banana"
-	"cinema/db"
 	"cinema/model"
 	"cinema/model/req"
 	"cinema/repository"
 	"context"
-	"database/sql"
+	"errors"
+	"log"
 	"time"
 
-	"github.com/labstack/gommon/log"
 	"github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
 type UserRepoImpl struct {
-	sql *db.Sql
+	db *gorm.DB
 }
 
-func NewUserRepo(sql *db.Sql) repository.UserRepo {
-	return &UserRepoImpl{
-		sql: sql,
-	}
+func NewUserRepo(db *gorm.DB) repository.UserRepo {
+	return &UserRepoImpl{db: db}
 }
 
-func (u UserRepoImpl) SaveUser(context context.Context, user model.User) (model.User, error) {
-	statement := `
-		INSERT INTO users(user_id, email, password, role, full_name, created_at, updated_at)
-		VALUES(:user_id, :email, :password, :role, :full_name, :created_at, :updated_at)
-	`
-	user.CreatedAt = time.Now()
-	user.UpdatedAt = time.Now()
+// Lưu User vào CSDL
+func (u *UserRepoImpl) SaveUser(ctx context.Context, user model.User) (model.User, error) {
+	now := time.Now()
+	user.CreatedAt = now
+	user.UpdatedAt = now
 
-	_, err := u.sql.Db.NamedExecContext(context, statement, user)
+	// Sử dụng GORM để lưu user vào CSDL
+	err := u.db.WithContext(ctx).Create(&user).Error
 	if err != nil {
-		log.Error(err.Error())
-		if err, ok := err.(*pq.Error); ok {
-			if err.Code.Name() == "unique_violation" {
-				return user, banana.UserConfilict
-			}
+		// Kiểm tra xem lỗi có phải là unique constraint từ PostgreSQL
+		var pqErr *pq.Error
+		if ok := errors.As(err, &pqErr); ok && pqErr.Code.Name() == "unique_violation" {
+			return user, banana.UserConfilict
 		}
+
+		log.Println("Error saving user:", err)
 		return user, banana.SignUpFail
 	}
 
 	return user, nil
 }
 
-func (u UserRepoImpl) CheckLogin(context context.Context, loginReq req.ReqSignIn) (model.User, error) {
-	var user = model.User{}
-	err := u.sql.Db.GetContext(context, &user, "SELECT * FROM users WHERE email=$1", loginReq.Email)
+// Kiểm tra thông tin đăng nhập
+func (u *UserRepoImpl) CheckLogin(ctx context.Context, loginReq req.ReqSignIn) (model.User, error) {
+	var user model.User
 
-	if err != nil {
-		if err == sql.ErrNoRows {
+	// Tìm user bằng email
+	if err := u.db.WithContext(ctx).Where("email = ?", loginReq.Email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
 			return user, banana.UserNotFound
 		}
-		log.Error(err.Error())
+		log.Println("Error finding user:", err)
 		return user, err
 	}
 

@@ -7,134 +7,139 @@ import (
 	"cinema/security"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	uuid "github.com/google/uuid"
-	"github.com/labstack/echo"
-	"github.com/labstack/gommon/log"
 )
 
-type Userhandler struct {
+type UserHandler struct {
 	UserRepo repository.UserRepo
 }
 
-// user sign up------------------------------------------------------------------
-func (u *Userhandler) HandleSignUp(c echo.Context) error {
+// HandleSignUp - Xử lý đăng ký người dùng
+func (u *UserHandler) HandleSignUp(c *gin.Context) {
 	// Kiểm tra Content-Type
-	if c.Request().Header.Get("Content-Type") != "application/json" {
-		return c.JSON(http.StatusUnsupportedMediaType, model.Response{
+	if c.GetHeader("Content-Type") != "application/json" {
+		c.JSON(http.StatusUnsupportedMediaType, model.Response{
 			StatusCode: http.StatusUnsupportedMediaType,
 			Message:    "Unsupported Media Type",
 			Data:       nil,
 		})
+		return
 	}
-	req := req.ReqSignUp{}
-	if err := c.Bind(&req); err != nil {
-		log.Error(err.Error())
-		return c.JSON(http.StatusBadRequest, model.Response{
+
+	// Bind JSON request
+	var req req.ReqSignUp
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
 			Data:       nil,
 		})
+		return
 	}
+
+	// Validate input
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		log.Error(err.Error())
-		return c.JSON(http.StatusBadRequest, model.Response{
+		c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
 			Data:       nil,
 		})
+		return
 	}
 
+	// Hash password và tạo user ID
 	hash := security.HashAndSalt([]byte(req.Password))
-	role := model.MEMBER.String()
-
 	userId, err := uuid.NewUUID()
 	if err != nil {
-		log.Error(err.Error())
-		return c.JSON(http.StatusForbidden, model.Response{
-			StatusCode: http.StatusForbidden,
-			Message:    err.Error(),
+		c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Không thể tạo user ID",
 			Data:       nil,
 		})
+		return
 	}
 
+	// Tạo object User
 	user := model.User{
 		UserId:   userId.String(),
 		FullName: req.FullName,
 		Email:    req.Email,
 		Password: hash,
-		Role:     role,
+		Role:     model.MEMBER.String(),
 		Token:    "",
 	}
 
-	user, err = u.UserRepo.SaveUser(c.Request().Context(), user)
+	// Lưu vào database
+	user, err = u.UserRepo.SaveUser(c.Request.Context(), user)
 	if err != nil {
-		return c.JSON(http.StatusConflict, model.Response{
+		c.JSON(http.StatusConflict, model.Response{
 			StatusCode: http.StatusConflict,
-			Message:    err.Error(),
+			Message:    "Email đã được sử dụng",
 			Data:       nil,
 		})
+		return
 	}
 
-	/*token, err := security.GenToken(user)
-	if err != nil {
-		log.Error(err)
-		return c.JSON(http.StatusInternalServerError, model.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-			Data:       nil,
-		})
-	}
-	user.Token = token
-	*/
-	return c.JSON(http.StatusOK, model.Response{
+	// Trả về kết quả thành công
+	c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
-		Message:    "Xử lý thành công",
+		Message:    "Đăng ký thành công",
 		Data:       user,
 	})
 }
 
-func (u *Userhandler) HandleSignIn(c echo.Context) error {
-	req := req.ReqSignIn{}
-	if err := c.Bind(&req); err != nil {
-		log.Error(err.Error())
-		return c.JSON(http.StatusBadRequest, model.Response{
+// HandleSignIn - Xử lý đăng nhập người dùng
+func (u *UserHandler) HandleSignIn(c *gin.Context) {
+	// Bind JSON request
+	var req req.ReqSignIn
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
 			Data:       nil,
 		})
+		return
 	}
+
+	// Validate input
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		log.Error(err.Error())
-		return c.JSON(http.StatusBadRequest, model.Response{
+		c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
 			Data:       nil,
 		})
+		return
 	}
-	user, err := u.UserRepo.CheckLogin(c.Request().Context(), req)
+
+	// Kiểm tra người dùng trong database
+	user, err := u.UserRepo.CheckLogin(c.Request.Context(), req)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, model.Response{
+		c.JSON(http.StatusUnauthorized, model.Response{
 			StatusCode: http.StatusUnauthorized,
-			Message:    err.Error(),
+			Message:    "Tài khoản không tồn tại",
 			Data:       nil,
 		})
+		return
 	}
-	//check password
+
 	isTheSame := security.ComparePasswords(user.Password, []byte(req.Password))
 	if !isTheSame {
-		return c.JSON(http.StatusUnauthorized, model.Response{
+		c.JSON(http.StatusUnauthorized, model.Response{
 			StatusCode: http.StatusUnauthorized,
-			Message:    "Đăng nhập thất bại",
+			Message:    "Mật khẩu không chính xác",
 			Data:       nil,
 		})
+		return
 	}
-	return c.JSON(http.StatusOK, model.Response{
+
+	// Đăng nhập thành công
+	c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
 		Message:    "Đăng nhập thành công",
 		Data:       user,
 	})
-
 }

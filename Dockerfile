@@ -1,5 +1,5 @@
 # Giai đoạn 1: Build ứng dụng Go
-FROM golang:1.23.0-alpine as builder
+FROM golang:1.23.0-alpine AS builder
 
 WORKDIR /Cinema-1
 

@@ -1,9 +1,14 @@
 package model
 
+import "time"
+
+// Film ánh xạ tới bảng films
 type Film struct {
-	FilmId      string  `json:"-" db:"film_id, omitempty"`
-	FilmName    string  `json:"filmName,omitempty" db:"film_name, omitempty"`
-	Thoiluong   float32 `json:"timefull,omitempty" db:"timefull, omitempty"`
-	Gioihantuoi int     `json:"limitAge,omitempty" db:"limitAge, omitempty"`
-	ImageFilm   string  `json:"image,omitempty" db:"image, omitempty"`
+	FilmId      string    `gorm:"primaryKey" json:"-"`             // Khoá chính
+	FilmName    string    `json:"filmName,omitempty"`              // Tên phim
+	Thoiluong   float32   `json:"timefull,omitempty"`              // Thời lượng phim
+	Gioihantuoi int       `json:"limitAge,omitempty"`              // Giới hạn tuổi
+	ImageFilm   string    `json:"image,omitempty"`                 // Đường dẫn ảnh
+	CreatedAt   time.Time `gorm:"autoCreateTime" json:"createdAt"` // Thời gian tạo
+	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updatedAt"` // Thời gian cập nhật
 }
