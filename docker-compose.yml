@@ -2,11 +2,11 @@ services:
   app:
     build: .
     ports:
-      - "8080:8080"
+      - "3000:3000"
     depends_on:
       - db
     environment:
-      - DB_HOST=db
+      - DB_HOST= 127.0.0.1
       - DB_USER=postgres
       - DB_PASSWORD=19022003
       - DB_NAME=userlogin

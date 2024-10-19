@@ -21,4 +21,5 @@ func (api *API) SetupRouter() {
 	api.Router.POST("/film", api.FilmHandler.HandleSaveFilm) // Lưu phim mới
 	api.Router.GET("/film/:id", api.FilmHandler.GetFilmByID) // Lấy thông tin phim theo ID
 	api.Router.GET("/films", api.FilmHandler.GetAllFilms)    // Lấy tất cả phim
+
 }

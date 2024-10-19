@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Phim Mới - BICINEMA</title>
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+    <div id="Wrapper">
+        <div id="header">
+            <div id="menu">
+                <div class="item">
+                    <a href="index.html">Trang chủ</a>
+                </div>
+                <div class="item">
+                    <a href="now-showing.html">Đang Chiếu</a>
+                </div>
+                <div class="item">
+                    <a href="add-film.html">Thêm Phim</a>
+                </div>
+            </div>
+
+            <a href="index.html" class="logo">BICINEMA</a>
+
+            <div class="search-bar">
+                <input type="text" placeholder="Từ khóa tìm kiếm...">
+            </div>
+
+            <div id="actions">
+                <div class="item">
+                    <span class="support">Hỗ trợ</span>
+                </div>
+                <a href="login.html" class="item">
+                    <img src="image/assets user.jpg" alt="Đăng nhập">
+                    Đăng nhập
+                </a>
+            </div>
+        </div>
+
+        <main>
+            <section class="form-section">
+                <h2>Thêm Phim Mới</h2>
+                <form id="addFilmForm">
+                    <div class="form-group">
+                        <label for="filmName">Tên phim:</label>
+                        <input type="text" id="filmName" name="filmName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="image">URL Hình ảnh:</label>
+                        <input type="url" id="image" name="image" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="timefull">Thời gian phát hành:</label>
+                        <input type="date" id="timefull" name="timefull" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="limitAge">Giới hạn tuổi:</label>
+                        <input type="number" id="limitAge" name="limitAge" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Trạng thái:</label>
+                        <select id="status" name="status" required>
+                            <option value="Đang Chiếu">Đang Chiếu</option>
+                            <option value="Sắp Chiếu">Sắp Chiếu</option>
+                        </select>
+                    </div>
+                    <button type="submit">Thêm Phim</button>
+                </form>
+                <div id="responseMessage" style="margin-top: 10px;"></div>
+            </section>
+        </main>
+
+        <script>
+            document.getElementById('addFilmForm').addEventListener('submit', function(event) {
+                event.preventDefault(); // Ngăn chặn reload trang
+
+                const filmData = {
+                    filmName: document.getElementById('filmName').value,
+                    image: document.getElementById('image').value,
+                    timefull: document.getElementById('timefull').value,
+                    limitAge: document.getElementById('limitAge').value,
+                    status: document.getElementById('status').value
+                };
+
+                fetch('http://localhost:3000/film', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(filmData)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Lỗi khi thêm phim. Vui lòng kiểm tra lại.');
+                    }
+                })
+                .then(data => {
+                    document.getElementById('responseMessage').innerHTML = 
+                        `<p style="color: green;">Phim "${data.filmName}" đã được thêm thành công!</p>`;
+                    document.getElementById('addFilmForm').reset(); // Reset form sau khi gửi
+                })
+                .catch(error => {
+                    document.getElementById('responseMessage').innerHTML = 
+                        `<p style="color: red;">${error.message}</p>`;
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

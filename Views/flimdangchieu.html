@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phim Đang Chiếu - BICINEMA</title>
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+    <div id="Wrapper">
+        <div id="header">
+            <div id="menu">
+                <div class="item">
+                    <a href="index.html" class="vephim">Trang chủ</a>
+                </div>
+                <div class="item">
+                    <a href="now-showing.html">Đang Chiếu</a>
+                </div>
+                <div class="item">
+                    <a href="#">Sắp Chiếu</a>
+                </div>
+                <div class="item">
+                    <a href="#">Rạp</a>
+                </div>
+                <div class="item">
+                    <a href="#">Tin tức</a>
+                </div>
+            </div>
+
+            <a href="index.html" class="logo">BICINEMA</a>
+
+            <div class="search-bar">
+                <input type="text" placeholder="Từ khóa tìm kiếm...">
+            </div>
+
+            <div id="actions">
+                <div class="item">
+                    <span class="support">Hỗ trợ</span>
+                </div>
+                <a href="login.html" class="item">
+                    <img src="image/assets user.jpg" alt="Đăng nhập">
+                    Đăng nhập
+                </a>
+            </div>
+        </div>
+
+        <main>
+            <section class="movie-section">
+                <h2>Phim Đang Chiếu</h2>
+                <div class="movie-list">
+                    <!-- Phim sẽ được tải động từ API -->
+                </div>
+            </section>
+        </main>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                fetch("http://localhost:3000/films")
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Không thể tải dữ liệu từ API.");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const movieList = document.querySelector(".movie-list");
+                        movieList.innerHTML = ""; // Xóa nội dung cũ
+
+                        if (Array.isArray(data.Data)) {
+                            // Lọc phim đang chiếu dựa trên status
+                            const nowShowing = data.Data.filter(movie => movie.status === "Đang Chiếu");
+
+                            nowShowing.forEach(movie => {
+                                const movieItem = document.createElement("div");
+                                movieItem.className = "movie-item";
+                                movieItem.innerHTML = `
+                                    <img src="${movie.image}" alt="${movie.filmName}">
+                                    <button class="buy-ticket">Mua vé</button>
+                                    <div class="movie-info">
+                                        <h3>${movie.filmName}</h3>
+                                        <div class="timerating">
+                                            <p>${movie.timefull} <span class="rating">${movie.limitAge}+</span></p>
+                                        </div>
+                                    </div>
+                                `;
+                                movieList.appendChild(movieItem);
+                            });
+
+                            if (nowShowing.length === 0) {
+                                movieList.innerHTML = "<p>Hiện không có phim nào đang chiếu.</p>";
+                            }
+                        } else {
+                            console.error("Dữ liệu không hợp lệ:", data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Lỗi tải dữ liệu:", error);
+                    });
+            });
+        </script>
+    </div>
+</body>
+</html>

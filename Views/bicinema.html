@@ -214,7 +214,47 @@
     
             
         </main>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                fetch("http://localhost:3000/films")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return response.json();
+    })
+    .then(data => {
+        const movieList = document.querySelector(".movie-list");
+        movieList.innerHTML = ""; // Xóa nội dung hiện tại
 
+        // Kiểm tra nếu data.Data tồn tại và là một mảng
+        if (Array.isArray(data.Data)) {
+            data.Data.forEach(movie => {
+                const movieItem = document.createElement("div");
+                movieItem.className = "movie-item";
+                movieItem.innerHTML = `
+                    <img src="${movie.image}" alt="${movie.filmName}">
+                    <button class="buy-ticket">Mua vé</button>
+                    <div class="movie-info">
+                        <h3>${movie.filmName}</h3>
+                        <div class="timerating">
+                            <p>${movie.timefull} <span class="rating">${movie.limitAge}+</span></p>
+                        </div>
+                    </div>
+                `;
+                movieList.appendChild(movieItem);
+            });
+        } else {
+            console.error("Data returned is not an array:", data);
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching data:", error);
+    });
+
+            });
+        </script>
+        
        
     </div>
 </body>
