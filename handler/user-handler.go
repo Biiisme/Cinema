@@ -136,10 +136,23 @@ func (u *UserHandler) HandleSignIn(c *gin.Context) {
 		return
 	}
 
+	token, err := security.GenerateJWT(user.UserId, user.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Không thể tạo token",
+			Data:       nil,
+		})
+		return
+	}
+
 	// Đăng nhập thành công
 	c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
 		Message:    "Đăng nhập thành công",
-		Data:       user,
+		Data: gin.H{
+			"user":  user,
+			"token": token,
+		},
 	})
 }

@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	gormDB := db.NewGormDB("db", "postgres", "19022003", "userlogin", 5432)
+	gormDB := db.NewGormDB("127.0.0.1", "postgres", "19022003", "userlogin", 5432)
 	defer func() {
 		sqlDB, err := gormDB.DB.DB()
 		if err != nil {
