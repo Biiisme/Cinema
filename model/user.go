@@ -3,10 +3,10 @@ package model
 import "time"
 
 type User struct {
-	UserId    string    `json:"userId,omitempty" gorm:"column:user_id"`
+	UserId    string    `gorm:"primaryKey" json:"-"`
 	Email     string    `json:"email,omitempty" gorm:"column:email"`
 	Password  string    `json:"password,omitempty" gorm:"column:password"`
-	Role      string    `json:"role,omitempty" gorm:"column:role"`
+	Role      string    `json:"role,omitempty"`
 	FullName  string    `json:"fullName,omitempty" gorm:"column:full_name"`
 	Token     string    `json:"token,omitempty" gorm:"column:token"` // Thêm cột token vào đây
 	CreatedAt time.Time `json:"createdAt,omitempty" gorm:"column:created_at"`
