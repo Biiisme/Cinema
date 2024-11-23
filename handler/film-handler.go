@@ -66,11 +66,11 @@ func (h *FilmHandler) HandleSaveFilm(c *gin.Context) {
 	}
 
 	film := model.Film{
-		FilmId:      FilmId.String(), //Hỏi lại a tuệ
-		FilmName:    req.FilmName,
-		Thoiluong:   req.Thoiluong,
-		Gioihantuoi: req.Gioihantuoi,
-		ImageFilm:   req.ImageFilm,
+		FilmID:    FilmId.String(), //Hỏi lại a tuệ
+		FilmName:  req.FilmName,
+		TimeFull:  req.Thoiluong,
+		LimitAge:  req.Gioihantuoi,
+		ImageFilm: req.ImageFilm,
 	}
 
 	film, err = h.FilmRepo.SaveFilm(c.Request.Context(), film)
