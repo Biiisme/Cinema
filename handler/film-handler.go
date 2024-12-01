@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	uuid "github.com/google/uuid"
 )
 
 type FilmHandler struct {
@@ -55,25 +54,15 @@ func (h *FilmHandler) HandleSaveFilm(c *gin.Context) {
 		return
 	}
 
-	FilmId, err := uuid.NewUUID()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.Response{
-			StatusCode: http.StatusInternalServerError,
-			Message:    "Failed to generate UUID",
-			Data:       nil,
-		})
-		return
-	}
-
 	film := model.Film{
-		FilmID:    FilmId.String(), //Hỏi lại a tuệ
+		//Hỏi lại a tuệ
 		FilmName:  req.FilmName,
 		TimeFull:  req.Thoiluong,
 		LimitAge:  req.Gioihantuoi,
 		ImageFilm: req.ImageFilm,
 	}
 
-	film, err = h.FilmRepo.SaveFilm(c.Request.Context(), film)
+	savedFilm, err := h.FilmRepo.SaveFilm(c.Request.Context(), film)
 	if err != nil {
 		c.JSON(http.StatusConflict, model.Response{
 			StatusCode: http.StatusConflict,
@@ -86,8 +75,9 @@ func (h *FilmHandler) HandleSaveFilm(c *gin.Context) {
 	c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
 		Message:    "Lưu phim thành công",
-		Data:       film,
+		Data:       savedFilm,
 	})
+
 }
 
 // GetFilmByID lấy thông tin phim theo ID

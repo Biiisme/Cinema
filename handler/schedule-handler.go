@@ -5,6 +5,7 @@ import (
 	"cinema/model/req"
 	"cinema/repository/repo_impl"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -56,5 +57,30 @@ func (h *ScheduleHandler) HandleSaveSchedule(c *gin.Context) {
 		StatusCode: http.StatusOK,
 		Message:    "Lưu ngày chiếu thành công",
 		Data:       schedule,
+	})
+}
+
+// HandleGetSchedulesByFilmID xử lý lấy danh sách lịch chiếu theo FilmID
+func (h *ScheduleHandler) HandleGetSchedulesByFilmID(c *gin.Context) {
+	id := c.Param("filmId") // Lấy FilmID từ URL param
+
+	// Chuyển ID từ string sang int
+	filmID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid film ID"})
+		return
+	}
+
+	// Lấy danh sách lịch chiếu từ repository
+	schedules, err := h.ScheduleRepo.GetSchedulesByMovieID(c.Request.Context(), filmID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving schedules", "details": err.Error()})
+		return
+	}
+
+	// Trả về danh sách lịch chiếu
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Schedules retrieved successfully",
+		"data":    schedules,
 	})
 }

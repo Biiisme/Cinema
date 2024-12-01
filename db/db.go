@@ -24,7 +24,15 @@ func NewGormDB(host, user, password, dbname string, port int) *GormDB {
 }
 
 func (g *GormDB) Migrate() {
-	if err := g.DB.AutoMigrate(&model.Film{}, &model.User{}); err != nil {
+	if err := g.DB.AutoMigrate(
+		&model.Schedule{},
+		&model.Film{},
+		&model.User{},
+
+		&model.Seat{},
+		&model.Booking{},
+		&model.Room{},
+	); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 }

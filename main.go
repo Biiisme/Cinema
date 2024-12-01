@@ -44,11 +44,18 @@ func main() {
 	filmHandler := handler.FilmHandler{
 		FilmRepo: repo_impl.NewFilmRepoImpl(gormDB.DB), // Chuyển sang dùng GORM
 	}
-
+	scheduleHandler := handler.ScheduleHandler{
+		ScheduleRepo: *repo_impl.NewScheduleRepoImpl(gormDB.DB), // Chuyển sang dùng GORM
+	}
+	bookhingHandler := handler.BookingHandler{
+		BookingRepo: repo_impl.NewBookingRepo(gormDB.DB),
+	}
 	api := router.API{
-		Router:      r,
-		UserHandler: userHandler,
-		FilmHandler: filmHandler,
+		Router:          r,
+		UserHandler:     userHandler,
+		FilmHandler:     filmHandler,
+		ScheduleHandler: scheduleHandler,
+		BookingHandler:  bookhingHandler,
 	}
 
 	api.SetupRouter()
