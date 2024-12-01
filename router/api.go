@@ -17,12 +17,12 @@ type API struct {
 
 func (r *API) SetupRouter() {
 	// Định nghĩa các route cho user
-	r.Router.POST("/user/sign-in", r.UserHandler.HandleSignIn)                            //Lấy thông tin user
-	r.Router.POST("/user/sign-up", r.UserHandler.HandleSignUp)                            //Lưu user
-	r.Router.GET("/movies", r.FilmHandler.GetAllFilms)                                    //lấy tất cả phim
-	r.Router.GET("/film/:id", r.FilmHandler.GetFilmByID)                                  // Lấy thông tin phim theo ID
-	r.Router.POST("/schedules", r.ScheduleHandler.HandleSaveSchedule)                     //Lưu lịch chiếu
-	r.Router.GET("/schedules/film/:filmId", r.ScheduleHandler.HandleGetSchedulesByFilmID) //lấy lịch chiếu theo id film
+	r.Router.POST("/user/sign-in", r.UserHandler.HandleSignIn)                             //Lấy thông tin user
+	r.Router.POST("/user/sign-up", r.UserHandler.HandleSignUp)                             //Lưu user
+	r.Router.GET("/films", r.FilmHandler.GetAllFilms)                                      //lấy tất cả phim
+	r.Router.GET("/film/:id", r.FilmHandler.GetFilmByID)                                   // Lấy thông tin phim theo ID
+	r.Router.POST("/schedules", r.ScheduleHandler.HandleSaveSchedule)                      //Lưu lịch chiếu
+	r.Router.GET("/schedules/film/:film-id", r.ScheduleHandler.HandleGetSchedulesByFilmID) //lấy lịch chiếu theo id film
 
 	// Các route bảo vệ
 	api := r.Router.Group("/api")
@@ -33,6 +33,6 @@ func (r *API) SetupRouter() {
 	// Route dành cho admin
 	admin := api.Group("/admin")
 	admin.Use(security.AdminOnlyMiddleware())
-	admin.POST("/addmovie", r.FilmHandler.HandleSaveFilm) //Add film
+	admin.POST("/add-film", r.FilmHandler.HandleSaveFilm) //Add film
 
 }
