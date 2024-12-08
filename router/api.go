@@ -17,20 +17,20 @@ type API struct {
 
 func (r *API) SetupRouter() {
 	// Định nghĩa các route cho user
-	r.Router.POST("/user/sign-in", r.UserHandler.HandleSignIn)                             //Lấy thông tin user
-	r.Router.POST("/user/sign-up", r.UserHandler.HandleSignUp)                             //Lưu user
-	r.Router.GET("/films", r.FilmHandler.GetAllFilms)                                      //lấy tất cả phim
-	r.Router.GET("/film/:id", r.FilmHandler.GetFilmByID)                                   // Lấy thông tin phim theo ID
-	r.Router.POST("/schedules", r.ScheduleHandler.HandleSaveSchedule)                      //Lưu lịch chiếu
-	r.Router.GET("/schedules/film/:film-id", r.ScheduleHandler.HandleGetSchedulesByFilmID) //lấy lịch chiếu theo id film
-
-	// Các route bảo vệ
 	api := r.Router.Group("/api")
-	api.Use(security.JWTAuthMiddleware())
-	// Route dành cho khách hàng
-	api.POST("/bookings", r.BookingHandler.CreateBooking)
+	api.POST("/user/sign-in", r.UserHandler.HandleSignIn)                             //login
+	api.POST("/user/sign-up", r.UserHandler.HandleSignUp)                             //registration
+	api.GET("/films", r.FilmHandler.GetAllFilms)                                      //Get_all_films
+	api.GET("/film/:id", r.FilmHandler.GetFilmByID)                                   //Get_film_id
+	api.POST("/schedules", r.ScheduleHandler.HandleSaveSchedule)                      //Create schedule
+	api.GET("/schedules/film/:film-id", r.ScheduleHandler.HandleGetSchedulesByFilmID) //Get_schedule_filmID
 
-	// Route dành cho admin
+	customer := r.Router.Group("/customer")
+	customer.Use(security.JWTAuthMiddleware())
+	// Route for customer
+	customer.POST("/bookings", r.BookingHandler.CreateBooking) //Same bookling
+
+	// Route for admin
 	admin := api.Group("/admin")
 	admin.Use(security.AdminOnlyMiddleware())
 	admin.POST("/add-film", r.FilmHandler.HandleSaveFilm) //Add film

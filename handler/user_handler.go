@@ -16,7 +16,7 @@ type UserHandler struct {
 	UserRepo repository.UserRepo
 }
 
-// HandleSignUp - Xử lý đăng ký người dùng
+// HandleSignUp - Handles user registration
 func (u *UserHandler) HandleSignUp(c *gin.Context) {
 	// Kiểm tra Content-Type
 	if c.GetHeader("Content-Type") != "application/json" {
@@ -50,19 +50,19 @@ func (u *UserHandler) HandleSignUp(c *gin.Context) {
 		return
 	}
 
-	// Hash password và tạo user ID
+	// Hash password and create user ID
 	hash := security.HashAndSalt([]byte(req.Password))
 	userId, err := uuid.NewUUID()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.Response{
 			StatusCode: http.StatusInternalServerError,
-			Message:    "Không thể tạo user ID",
+			Message:    "Unable to create user ID",
 			Data:       nil,
 		})
 		return
 	}
 
-	// Tạo object User
+	// Create object User
 	user := model.User{
 		UserId:   userId.String(),
 		FullName: req.FullName,
@@ -72,26 +72,26 @@ func (u *UserHandler) HandleSignUp(c *gin.Context) {
 		Token:    "",
 	}
 
-	// Lưu vào database
+	//Save users to database
 	user, err = u.UserRepo.SaveUser(c.Request.Context(), user)
 	if err != nil {
 		c.JSON(http.StatusConflict, model.Response{
 			StatusCode: http.StatusConflict,
-			Message:    "Email đã được sử dụng",
+			Message:    "Email is already in using",
 			Data:       nil,
 		})
 		return
 	}
 
-	// Trả về kết quả thành công
+	//Returns successful results
 	c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
-		Message:    "Đăng ký thành công",
+		Message:    "Registered successfully",
 		Data:       user,
 	})
 }
 
-// HandleSignIn - Xử lý đăng nhập người dùng
+// HandleSignIn - Handle user login
 func (u *UserHandler) HandleSignIn(c *gin.Context) {
 	// Bind JSON request
 	var req req.ReqSignIn

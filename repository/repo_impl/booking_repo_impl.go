@@ -19,7 +19,7 @@ func (r *BookingRepoImpl) SaveBooking(booking model.Booking) error {
 	return r.db.Create(&booking).Error
 }
 
-func (r *BookingRepoImpl) GetBookingInvoice(scheduleID uint, userID uint) (model.BookingInvoice, error) {
+func (r *BookingRepoImpl) GetBookingInvoice(scheduleID int, userID string) (model.BookingInvoice, error) {
 	var invoice model.BookingInvoice
 
 	err := r.db.Raw(`

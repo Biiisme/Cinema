@@ -72,7 +72,7 @@ func (h *ScheduleHandler) HandleGetSchedulesByFilmID(c *gin.Context) {
 	}
 
 	// Lấy danh sách lịch chiếu từ repository
-	schedules, err := h.ScheduleRepo.GetSchedulesByMovieID(c.Request.Context(), filmID)
+	schedules, err := h.ScheduleRepo.GetSchedulesByFilmID(c.Request.Context(), filmID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving schedules", "details": err.Error()})
 		return

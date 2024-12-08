@@ -17,11 +17,11 @@ func NewScheduleRepoImpl(db *gorm.DB) *ScheduleRepoImpl {
 	return &ScheduleRepoImpl{db: db}
 }
 
-// SaveSchedule lưu lịch chiếu vào cơ sở dữ liệu
+// SaveSchedule saves the show schedule to the database
 func (s *ScheduleRepoImpl) SaveSchedule(ctx context.Context, schedule model.Schedule) (model.Schedule, error) {
-	// Sử dụng GORM để lưu lịch chiếu
+	// Use GORM to save showtimes
 	if err := s.db.WithContext(ctx).Create(&schedule).Error; err != nil {
-		// Kiểm tra lỗi nếu có
+		// Check for errors if any
 		log.Println("Error saving schedule:", err)
 		return schedule, banana.SaveScheduleFail
 	}
@@ -29,9 +29,10 @@ func (s *ScheduleRepoImpl) SaveSchedule(ctx context.Context, schedule model.Sche
 	return schedule, nil
 }
 
-func (s *ScheduleRepoImpl) GetSchedulesByMovieID(ctx context.Context, movieID int) ([]model.Schedule, error) {
+func (s *ScheduleRepoImpl) GetSchedulesByFilmID(ctx context.Context, filmID int) ([]model.Schedule, error) {
 	var schedules []model.Schedule
-	if err := s.db.WithContext(ctx).Where("film_id = ?", movieID).Find(&schedules).Error; err != nil {
+	//Check schedule by film
+	if err := s.db.WithContext(ctx).Where("film_id = ?", filmID).Find(&schedules).Error; err != nil {
 		return nil, err
 	}
 	return schedules, nil

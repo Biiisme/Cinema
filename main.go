@@ -22,12 +22,12 @@ func main() {
 		sqlDB.Close()
 	}()
 
-	// Thực hiện migrate
+	//  migrate
 	gormDB.Migrate()
 
 	r := gin.Default()
 
-	// Cấu hình CORS
+	//  CORS
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://127.0.0.1:5500"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
@@ -38,14 +38,14 @@ func main() {
 	}))
 
 	userHandler := handler.UserHandler{
-		UserRepo: repo_impl.NewUserRepo(gormDB.DB), // Chuyển sang dùng GORM
+		UserRepo: repo_impl.NewUserRepo(gormDB.DB), //  GORM
 	}
 
 	filmHandler := handler.FilmHandler{
-		FilmRepo: repo_impl.NewFilmRepoImpl(gormDB.DB), // Chuyển sang dùng GORM
+		FilmRepo: repo_impl.NewFilmRepoImpl(gormDB.DB), // GORM
 	}
 	scheduleHandler := handler.ScheduleHandler{
-		ScheduleRepo: *repo_impl.NewScheduleRepoImpl(gormDB.DB), // Chuyển sang dùng GORM
+		ScheduleRepo: *repo_impl.NewScheduleRepoImpl(gormDB.DB),
 	}
 	bookhingHandler := handler.BookingHandler{
 		BookingRepo: repo_impl.NewBookingRepo(gormDB.DB),

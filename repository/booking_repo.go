@@ -6,5 +6,5 @@ import (
 
 type BookingRepo interface {
 	SaveBooking(booking model.Booking) error
-	GetBookingInvoice(scheduleID uint, userID uint) (model.BookingInvoice, error)
+	GetBookingInvoice(scheduleID int, userID string) (model.BookingInvoice, error)
 }
