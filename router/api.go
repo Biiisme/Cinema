@@ -33,6 +33,7 @@ func (r *API) SetupRouter() {
 	// Route for admin
 	admin := api.Group("/admin")
 	admin.Use(security.AdminOnlyMiddleware())
-	admin.POST("/add-film", r.FilmHandler.HandleSaveFilm) //Add film
+	admin.POST("/add-film", r.FilmHandler.HandleSaveFilm)          //Add film
+	admin.DELETE("/delete-film/:id", r.FilmHandler.DeleteFilmByID) //Delete film
 
 }

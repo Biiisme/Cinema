@@ -155,3 +155,30 @@ func (h *FilmHandler) GetAllFilms(c *gin.Context) {
 		Data:       films,
 	})
 }
+
+func (h *FilmHandler) DeleteFilmByID(c *gin.Context) {
+	id := c.Param("id")
+
+	film, err := h.FilmRepo.GetFilmByID(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, model.Response{
+			StatusCode: http.StatusNotFound,
+			Message:    "Film not found",
+			Data:       nil,
+		})
+		return
+	}
+	if err := h.FilmRepo.Delete(film); err != nil {
+		c.JSON(http.StatusNotFound, model.Response{
+			StatusCode: http.StatusNotFound,
+			Message:    "Delete Film not found",
+			Data:       nil,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Xóa phim thành công",
+		Data:       film,
+	})
+}
