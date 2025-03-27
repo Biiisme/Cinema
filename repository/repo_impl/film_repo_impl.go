@@ -65,3 +65,13 @@ func (f *FilmRepoImpl) GetAllFilms(ctx context.Context) ([]model.Film, error) {
 
 	return films, nil
 }
+
+// Delete Film for database
+func (f *FilmRepoImpl) Delete(film model.Film) error {
+	err := f.db.Unscoped().Delete(&film).Error
+	if err != nil {
+		log.Println("Error delete film")
+		return err
+	}
+	return nil
+}

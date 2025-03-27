@@ -106,6 +106,68 @@
                 }
             }
         },
+        "/admin/delete-film/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Chỉ admin mới có quyền thêm phim mới vào hệ thống",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "film"
+                ],
+                "summary": "delete a film",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token (Bearer {token})",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Film ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Film"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/film/{id}": {
             "get": {
                 "description": "get string by ID",
@@ -132,7 +194,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Film"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Film"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {

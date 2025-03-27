@@ -102,7 +102,7 @@ func (h *FilmHandler) HandleSaveFilm(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "Film ID"
-// @Success      200  {object}  model.Film
+// @Success      200  {object}  model.Response{data=model.Film}
 // @Failure      400  {object}  model.Response
 // @Failure      404  {object}  model.Response
 // @Failure      500  {object}  model.Response
@@ -153,5 +153,46 @@ func (h *FilmHandler) GetAllFilms(c *gin.Context) {
 		StatusCode: http.StatusOK,
 		Message:    "Lấy tất cả phim thành công",
 		Data:       films,
+	})
+}
+
+// ShowAccount godoc
+// @Summary      delete a film
+// @Description  Chỉ admin mới có quyền thêm phim mới vào hệ thống
+// @Tags         film
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        Authorization  header    string  true  "Token (Bearer {token})"
+// @Param        id   path      int  true  "Film ID"
+// @Success      200  {object}  model.Film
+// @Failure      400  {object}  model.Response
+// @Failure      404  {object}  model.Response
+// @Failure      500  {object}  model.Response
+// @Router       /admin/delete-film/{id} [delete]
+func (h *FilmHandler) DeleteFilmByID(c *gin.Context) {
+	id := c.Param("id")
+
+	film, err := h.FilmRepo.GetFilmByID(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, model.Response{
+			StatusCode: http.StatusNotFound,
+			Message:    "Film not found",
+			Data:       nil,
+		})
+		return
+	}
+	if err := h.FilmRepo.Delete(film); err != nil {
+		c.JSON(http.StatusNotFound, model.Response{
+			StatusCode: http.StatusNotFound,
+			Message:    "Delete Film not found",
+			Data:       nil,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Xóa phim thành công",
+		Data:       film,
 	})
 }
