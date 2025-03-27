@@ -33,5 +33,10 @@ func GenerateJWT(userId string, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Ký token với khóa bí mật
-	return token.SignedString(jwtSecretKey)
+	signedToken, err := token.SignedString(jwtSecretKey)
+	if err != nil {
+		return "", err
+	}
+	// ip , token , userid,updated_at
+	return signedToken, nil
 }

@@ -18,6 +18,21 @@ func NewFilmHandler(repo repository.FilmRepo) *FilmHandler {
 	return &FilmHandler{FilmRepo: repo}
 }
 
+// HandleSaveFilm godoc
+// @Summary      Thêm phim mới
+// @Description  Chỉ admin mới có quyền thêm phim mới vào hệ thống
+// @Tags         film
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        Authorization  header    string  true  "Token (Bearer {token})"
+// @Param        film           body      req.ReqFilm  true  "Thông tin phim cần lưu"
+// @Success      200            {object}  model.Response{data=model.Film}
+// @Failure      400            {object}  model.Response{data=[]string}
+// @Failure      401            {object}  model.Response
+// @Failure      415            {object}  model.Response
+// @Failure      409            {object}  model.Response
+// @Router       /admin/add-film [post]
 // HandleSaveFilm lưu phim mới
 func (h *FilmHandler) HandleSaveFilm(c *gin.Context) {
 	// Kiểm tra Content-Type
@@ -80,6 +95,18 @@ func (h *FilmHandler) HandleSaveFilm(c *gin.Context) {
 
 }
 
+// ShowAccount godoc
+// @Summary      Show an film
+// @Description  get string by ID
+// @Tags         film
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Film ID"
+// @Success      200  {object}  model.Film
+// @Failure      400  {object}  model.Response
+// @Failure      404  {object}  model.Response
+// @Failure      500  {object}  model.Response
+// @Router       /film/{id} [get]
 // GetFilmByID lấy thông tin phim theo ID
 func (h *FilmHandler) GetFilmByID(c *gin.Context) {
 	id := c.Param("id")
@@ -101,6 +128,15 @@ func (h *FilmHandler) GetFilmByID(c *gin.Context) {
 	})
 }
 
+// GetAllFilms godoc
+// @Summary      Lấy danh sách tất cả phim
+// @Description  Trả về danh sách tất cả phim có trong hệ thống
+// @Tags         film
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  model.Response{data=[]model.Film}
+// @Failure      500  {object}  model.Response
+// @Router       /films [get]
 // GetAllFilms lấy tất cả phim
 func (h *FilmHandler) GetAllFilms(c *gin.Context) {
 	films, err := h.FilmRepo.GetAllFilms(c.Request.Context())

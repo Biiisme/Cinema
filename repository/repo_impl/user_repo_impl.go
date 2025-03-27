@@ -7,6 +7,7 @@ import (
 	"cinema/repository"
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -53,9 +54,60 @@ func (u *UserRepoImpl) CheckLogin(ctx context.Context, loginReq req.ReqSignIn) (
 		if err == gorm.ErrRecordNotFound {
 			return user, banana.UserNotFound
 		}
-		log.Println("Error finding user:", err)
+
 		return user, err
 	}
 
 	return user, nil
+}
+
+func (u *UserRepoImpl) CountUser(ctx context.Context, UserID string) (int64, error) {
+	var count int64
+	// err := u.db.WithContext(ctx).Table("tokens").Select("user_id").Where("user_id = ?", UserID).Group("ip").Count(&count)
+	err := u.db.WithContext(ctx).Table("tokens").Select("user_id").Where("user_id = ?", UserID).Count(&count).Error
+
+	if err != nil {
+
+		return 0, nil
+	}
+	return count, nil
+}
+func (u *UserRepoImpl) RemoveUser(UserID string) error {
+	var oldestToken model.Token
+
+	err := u.db.Where("user_id=?", UserID).Order("updated_at ASC").
+		First(&oldestToken).Error
+	if err != nil {
+
+		return err
+	}
+
+	return u.db.Unscoped().Delete(&oldestToken).Error
+}
+func (u *UserRepoImpl) SaveToken(ctx context.Context, userID string, token string, ip string) error {
+
+	ipCount, err := u.CountUser(ctx, userID)
+	fmt.Println(ipCount)
+	if err != nil {
+		return err
+	}
+	if ipCount >= 3 {
+
+		err := u.RemoveUser(userID)
+		if err != nil {
+			// log.Println(err)
+
+			return err
+		}
+
+	}
+
+	newToken := model.Token{
+		UserID:    userID,
+		IP:        ip,
+		Token:     token,
+		UpdatedAt: time.Now(),
+	}
+
+	return u.db.WithContext(ctx).Create(&newToken).Error
 }

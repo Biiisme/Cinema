@@ -15,12 +15,12 @@ var jwtSecret = []byte("your_secret_key")
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
-		if tokenString == "" || !strings.HasPrefix(tokenString, "MEMBER") {
+		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token không hợp lệ hoặc không được cung cấp"})
 			c.Abort()
 			return
 		}
-		tokenString = strings.TrimPrefix(tokenString, "MEMBER")
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return jwtSecret, nil
@@ -49,11 +49,25 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 func AdminOnlyMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role, exists := c.Get("role")
-		if !exists || role != "admin" {
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Không tìm thấy role trong context"})
+			c.Abort()
+			return
+		}
+
+		roleStr, ok := role.(string)
+		if !ok {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Role không hợp lệ"})
+			c.Abort()
+			return
+		}
+
+		if roleStr != "admin" {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Không được phép: Chỉ dành cho Admin"})
 			c.Abort()
 			return
 		}
+
 		c.Next()
 	}
 }

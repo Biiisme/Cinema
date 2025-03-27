@@ -9,4 +9,5 @@ import (
 type UserRepo interface {
 	CheckLogin(context context.Context, loginReq req.ReqSignIn) (model.User, error)
 	SaveUser(context context.Context, user model.User) (model.User, error)
+	SaveToken(context context.Context, UserID string, token string, ip string) error
 }

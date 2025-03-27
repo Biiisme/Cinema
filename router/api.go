@@ -24,9 +24,9 @@ func (r *API) SetupRouter() {
 	api.GET("/film/:id", r.FilmHandler.GetFilmByID)                                   //Get_film_id
 	api.POST("/schedules", r.ScheduleHandler.HandleSaveSchedule)                      //Create schedule
 	api.GET("/schedules/film/:film-id", r.ScheduleHandler.HandleGetSchedulesByFilmID) //Get_schedule_filmID
-
+	api.Use(security.JWTAuthMiddleware())
 	customer := r.Router.Group("/customer")
-	customer.Use(security.JWTAuthMiddleware())
+
 	// Route for customer
 	customer.POST("/bookings", r.BookingHandler.CreateBooking) //Same bookling
 

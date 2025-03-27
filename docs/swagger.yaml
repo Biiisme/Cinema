@@ -1,0 +1,291 @@
+basePath: /api
+definitions:
+  model.Film:
+    properties:
+      createdAt:
+        description: Thời gian tạo
+        type: string
+      filmName:
+        description: Tên phim
+        type: string
+      image:
+        description: Đường dẫn ảnh
+        type: string
+      limitAge:
+        description: Giới hạn tuổi
+        type: integer
+      timefull:
+        description: Thời lượng phim
+        type: number
+      updatedAt:
+        description: Thời gian cập nhật
+        type: string
+    type: object
+  model.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  model.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      fullName:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      token:
+        description: Thêm cột token vào đây
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  req.ReqFilm:
+    properties:
+      filmName:
+        type: string
+      image:
+        type: string
+      limitAge:
+        type: integer
+      timefull:
+        type: number
+    type: object
+  req.ReqSignIn:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  req.ReqSignUp:
+    properties:
+      email:
+        type: string
+      fullName:
+        description: tags
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - fullName
+    - password
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: A Tag service API in Go using Gin framework
+  title: Tag Service API
+  version: "1.0"
+paths:
+  /admin/add-film:
+    post:
+      consumes:
+      - application/json
+      description: Chỉ admin mới có quyền thêm phim mới vào hệ thống
+      parameters:
+      - description: Token (Bearer {token})
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Thông tin phim cần lưu
+        in: body
+        name: film
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqFilm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Film'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  items:
+                    type: string
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.Response'
+        "415":
+          description: Unsupported Media Type
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Thêm phim mới
+      tags:
+      - film
+  /film/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      parameters:
+      - description: Film ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Film'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Show an film
+      tags:
+      - film
+  /films:
+    get:
+      consumes:
+      - application/json
+      description: Trả về danh sách tất cả phim có trong hệ thống
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Film'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Lấy danh sách tất cả phim
+      tags:
+      - film
+  /user/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: API cho phép người dùng đăng nhập và nhận token
+      parameters:
+      - description: Thông tin đăng nhập
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqSignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Đăng nhập
+      tags:
+      - user
+  /user/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: API cho phép người dùng đăng ký tài khoản mới
+      parameters:
+      - description: Thông tin đăng ký
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqSignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Đăng ký tài khoản mới
+      tags:
+      - user
+swagger: "2.0"

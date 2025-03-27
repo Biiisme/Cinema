@@ -8,10 +8,20 @@ import (
 	"log"
 	"time"
 
+	_ "cinema/docs"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title 	Tag Service API
+// @version	1.0
+// @description A Tag service API in Go using Gin framework
+
+// @host 	localhost:3000
+// @BasePath /api
 func main() {
 	gormDB := db.NewGormDB("127.0.0.1", "postgres", "19022003", "userlogin", 5432)
 	defer func() {
@@ -26,7 +36,7 @@ func main() {
 	gormDB.Migrate()
 
 	r := gin.Default()
-
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//  CORS
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://127.0.0.1:5500"},
@@ -59,5 +69,6 @@ func main() {
 	}
 
 	api.SetupRouter()
+
 	r.Run(":3000")
 }

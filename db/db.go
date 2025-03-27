@@ -28,10 +28,10 @@ func (g *GormDB) Migrate() {
 		&model.Schedule{},
 		&model.Film{},
 		&model.User{},
-
 		&model.Seat{},
 		&model.Booking{},
 		&model.Room{},
+		&model.Token{},
 	); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}

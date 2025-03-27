@@ -4,6 +4,8 @@ import (
 	"cinema/model"
 	req "cinema/model/req"
 	"cinema/repository"
+	"fmt"
+
 	"cinema/security"
 	"net/http"
 
@@ -16,6 +18,18 @@ type UserHandler struct {
 	UserRepo repository.UserRepo
 }
 
+// HandleSignUp godoc
+// @Summary      Đăng ký tài khoản mới
+// @Description  API cho phép người dùng đăng ký tài khoản mới
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        request  body      req.ReqSignUp  true  "Thông tin đăng ký"
+// @Success      200      {object}  model.Response{data=model.User}
+// @Failure      400      {object}  model.Response
+// @Failure      409      {object}  model.Response
+// @Failure      500      {object}  model.Response
+// @Router       /user/sign-up [post]
 // HandleSignUp - Handles user registration
 func (u *UserHandler) HandleSignUp(c *gin.Context) {
 	// Kiểm tra Content-Type
@@ -91,7 +105,19 @@ func (u *UserHandler) HandleSignUp(c *gin.Context) {
 	})
 }
 
-// HandleSignIn - Handle user login
+// HandleSignIn godoc
+// @Summary      Đăng nhập
+// @Description  API cho phép người dùng đăng nhập và nhận token
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        request  body      req.ReqSignIn  true  "Thông tin đăng nhập"
+// @Success      200      {object}  model.Response{data=map[string]interface{}}
+// @Failure      400      {object}  model.Response
+// @Failure      401      {object}  model.Response
+// @Failure      409      {object}  model.Response
+// @Failure      500      {object}  model.Response
+// @Router       /user/sign-in [post]
 func (u *UserHandler) HandleSignIn(c *gin.Context) {
 	// Bind JSON request
 	var req req.ReqSignIn
@@ -115,12 +141,12 @@ func (u *UserHandler) HandleSignIn(c *gin.Context) {
 		return
 	}
 
-	// Kiểm tra người dùng trong database
+	// Check users in the database
 	user, err := u.UserRepo.CheckLogin(c.Request.Context(), req)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, model.Response{
 			StatusCode: http.StatusUnauthorized,
-			Message:    "Tài khoản không tồn tại",
+			Message:    "Account does not exist",
 			Data:       nil,
 		})
 		return
@@ -130,7 +156,7 @@ func (u *UserHandler) HandleSignIn(c *gin.Context) {
 	if !isTheSame {
 		c.JSON(http.StatusUnauthorized, model.Response{
 			StatusCode: http.StatusUnauthorized,
-			Message:    "Mật khẩu không chính xác",
+			Message:    "Password is incorrect",
 			Data:       nil,
 		})
 		return
@@ -140,16 +166,25 @@ func (u *UserHandler) HandleSignIn(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.Response{
 			StatusCode: http.StatusInternalServerError,
-			Message:    "Không thể tạo token",
+			Message:    "Unable to create tokens",
 			Data:       nil,
 		})
 		return
 	}
-
-	// Đăng nhập thành công
+	ip := c.ClientIP()
+	fmt.Println(ip)
+	if err := u.UserRepo.SaveToken(c.Request.Context(), user.UserId, token, ip); err != nil {
+		c.JSON(http.StatusConflict, model.Response{
+			StatusCode: http.StatusConflict,
+			Message:    "Token unlock",
+			Data:       token,
+		})
+		return
+	}
+	// Log in successfully
 	c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
-		Message:    "Đăng nhập thành công",
+		Message:    "Login successfully",
 		Data: gin.H{
 			"user":  user,
 			"token": token,
