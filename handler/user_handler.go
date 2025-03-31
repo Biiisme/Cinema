@@ -64,8 +64,30 @@ func (u *UserHandler) HandleSignUp(c *gin.Context) {
 		return
 	}
 
-	// Hash password and create user ID
+	// Hash password
 	hash := security.HashAndSalt([]byte(req.Password))
+
+	//send email
+	otp, err := security.GeneratorOTP(6)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+		return
+	}
+	hashotp, _ := security.HashOTP(otp)
+	senderr := security.SendSecretCodeToEmail(req.Email, otp, hashotp)
+	if senderr != nil {
+		c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "send email fail",
+			Data:       nil,
+		})
+		return
+	}
+	//hash ID user
 	userId, err := uuid.NewUUID()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.Response{
