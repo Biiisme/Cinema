@@ -34,3 +34,11 @@ func ComparePasswords(hashedPwd string, plainPwd []byte) bool {
 
 	return true
 }
+func HashOTP(otp string) (string, error) {
+	hashOTP, err := bcrypt.GenerateFromPassword([]byte(otp), 14)
+	return string(hashOTP), err
+}
+func CheckOTPHash(otp, otpHash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(otpHash), []byte(otp))
+	return err == nil
+}
