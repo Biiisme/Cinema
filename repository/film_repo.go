@@ -2,6 +2,7 @@ package repository
 
 import (
 	"cinema/model"
+	"cinema/model/req"
 	"context"
 )
 
@@ -10,4 +11,5 @@ type FilmRepo interface {
 	GetFilmByID(ctx context.Context, id string) (model.Film, error)
 	GetAllFilms(ctx context.Context) ([]model.Film, error)
 	Delete(film model.Film) error
+	UpdateFilm(filmReq req.FilmReq, id string) (model.Film, error)
 }
