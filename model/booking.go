@@ -1,10 +1,11 @@
 package model
 
 type Booking struct {
-	ID         int    `gorm:"primaryKey"`
-	UserID     string `json:"userId"`
-	ScheduleID int    `json:"scheduleId"`
-	SeatID     int    `json:"seatId"`
+	ID         int    `gorm:"primaryKey" json:"id"`
+	UserID     string `json:"user_id"`
+	FilmID     int    `json:"film_id"`
+	ScheduleID int    `json:"schedule_id"`
+	SeatID     int    `json:"seat_id"`
 	Status     string `json:"status"` // "booked" or "cancelled"
 }
 

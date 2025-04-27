@@ -5,6 +5,7 @@ import (
 	"cinema/handler"
 	"cinema/repository/repo_impl"
 	"cinema/router"
+	"cinema/utils"
 	"log"
 	"time"
 
@@ -35,13 +36,18 @@ func main() {
 	//  migrate
 	gormDB.Migrate()
 
+	/* Init Cache */
+	if err := utils.InitCache(); err != nil {
+		return
+	}
+
 	r := gin.Default()
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//  CORS
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://127.0.0.1:5500"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://127.0.0.1:3000", "http://127.0.0.1:5500"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
@@ -53,6 +59,12 @@ func main() {
 
 	filmHandler := handler.FilmHandler{
 		FilmRepo: repo_impl.NewFilmRepoImpl(gormDB.DB), // GORM
+	}
+	cinemaHandler := handler.CinemaHandler{
+		CinemaRepo: repo_impl.NewCinemaRepoImpl(gormDB.DB), // GORM
+	}
+	seatHandler := handler.SeatHandler{
+		SeatRepo: repo_impl.NewSeatRepoImpl(gormDB.DB), // GORM
 	}
 	scheduleHandler := handler.ScheduleHandler{
 		ScheduleRepo: *repo_impl.NewScheduleRepoImpl(gormDB.DB),
@@ -66,6 +78,8 @@ func main() {
 		FilmHandler:     filmHandler,
 		ScheduleHandler: scheduleHandler,
 		BookingHandler:  bookhingHandler,
+		CinemaHandler:   cinemaHandler,
+		SeatHandler:     seatHandler,
 	}
 
 	api.SetupRouter()

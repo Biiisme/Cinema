@@ -26,7 +26,7 @@ func NewFilmHandler(repo repository.FilmRepo) *FilmHandler {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        Authorization  header    string  true  "Token (Bearer {token})"
-// @Param        film           body      req.ReqFilm  true  "Thông tin phim cần lưu"
+// @Param        film           body      req.FilmReq  true  "Thông tin phim cần lưu"
 // @Success      200            {object}  model.Response{data=model.Film}
 // @Failure      400            {object}  model.Response{data=[]string}
 // @Failure      401            {object}  model.Response
@@ -45,7 +45,7 @@ func (h *FilmHandler) HandleSaveFilm(c *gin.Context) {
 		return
 	}
 
-	var req req.ReqFilm
+	var req req.FilmReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
@@ -70,11 +70,19 @@ func (h *FilmHandler) HandleSaveFilm(c *gin.Context) {
 	}
 
 	film := model.Film{
-		//Hỏi lại a tuệ
-		FilmName:  req.FilmName,
-		TimeFull:  req.Thoiluong,
-		LimitAge:  req.Gioihantuoi,
-		ImageFilm: req.ImageFilm,
+		Title:       req.Title,
+		PosterURL:   req.PosterURL,
+		Description: req.Description,
+		TrailerURL:  req.TrailerURL,
+		Duration:    req.Duration,
+		ReleaseDate: req.ReleaseDate,
+		EndDate:     req.EndDate,
+		//Genre:        req.Genre,
+		Director: req.Director,
+		//Actors:       req.Actors,
+		Rated:        req.Rated,
+		IsNowShowing: req.IsNowShowing,
+		IsComingSoon: req.IsComingSoon,
 	}
 
 	savedFilm, err := h.FilmRepo.SaveFilm(c.Request.Context(), film)
@@ -115,7 +123,7 @@ func (h *FilmHandler) GetFilmByID(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusNotFound, model.Response{
 			StatusCode: http.StatusNotFound,
-			Message:    "Film not found",
+			Message:    "Film not ",
 			Data:       nil,
 		})
 		return
@@ -195,4 +203,56 @@ func (h *FilmHandler) DeleteFilmByID(c *gin.Context) {
 		Message:    "Xóa phim thành công",
 		Data:       film,
 	})
+}
+
+func (h *FilmHandler) HandleUpdateFilm(c *gin.Context) {
+	// Kiểm tra Content-Type
+	if c.GetHeader("Content-Type") != "application/json" {
+		c.JSON(http.StatusUnsupportedMediaType, model.Response{
+			StatusCode: http.StatusUnsupportedMediaType,
+			Message:    "Unsupported Media Type",
+			Data:       nil,
+		})
+		return
+	}
+	var req req.FilmReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+		return
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, err.Error())
+		}
+		c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Invalid data",
+			Data:       validationErrors,
+		})
+		return
+	}
+	id := c.Param("id")
+	savedFilm, err := h.FilmRepo.UpdateFilm(req, id)
+	if err != nil {
+		c.JSON(http.StatusConflict, model.Response{
+			StatusCode: http.StatusConflict,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Cập nhật phim thành công",
+		Data:       savedFilm,
+	})
+
 }

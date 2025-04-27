@@ -39,6 +39,7 @@ func (h *ScheduleHandler) HandleSaveSchedule(c *gin.Context) {
 	schedule := model.Schedule{
 		FilmID:   scheduleReq.FilmID,
 		RoomID:   scheduleReq.RoomID,
+		CinemaID: scheduleReq.CinemaID,
 		ShowDate: ShowDate,
 		ShowTime: ShowTime,
 	}
@@ -62,7 +63,7 @@ func (h *ScheduleHandler) HandleSaveSchedule(c *gin.Context) {
 
 // HandleGetSchedulesByFilmID xử lý lấy danh sách lịch chiếu theo FilmID
 func (h *ScheduleHandler) HandleGetSchedulesByFilmID(c *gin.Context) {
-	id := c.Param("filmId") // Lấy FilmID từ URL param
+	id := c.Param("id") // Lấy FilmID từ URL param
 
 	// Chuyển ID từ string sang int
 	filmID, err := strconv.Atoi(id)
