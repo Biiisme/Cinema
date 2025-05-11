@@ -39,6 +39,7 @@ func (h *ScheduleHandler) HandleSaveSchedule(c *gin.Context) {
 	schedule := model.Schedule{
 		FilmID:   scheduleReq.FilmID,
 		RoomID:   scheduleReq.RoomID,
+		CinemaID: scheduleReq.CinemaID,
 		ShowDate: ShowDate,
 		ShowTime: ShowTime,
 	}
@@ -62,7 +63,7 @@ func (h *ScheduleHandler) HandleSaveSchedule(c *gin.Context) {
 
 // HandleGetSchedulesByFilmID xử lý lấy danh sách lịch chiếu theo FilmID
 func (h *ScheduleHandler) HandleGetSchedulesByFilmID(c *gin.Context) {
-	id := c.Param("filmId") // Lấy FilmID từ URL param
+	id := c.Param("id") // Lấy FilmID từ URL param
 
 	// Chuyển ID từ string sang int
 	filmID, err := strconv.Atoi(id)
@@ -81,6 +82,29 @@ func (h *ScheduleHandler) HandleGetSchedulesByFilmID(c *gin.Context) {
 	// Trả về danh sách lịch chiếu
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Schedules retrieved successfully",
+		"data":    schedules,
+	})
+}
+
+func (h *ScheduleHandler) HandleReadSchedule(c *gin.Context) {
+	id := c.Param("id")
+
+	scheduleId, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid film ID"})
+		return
+	}
+
+	// Lấy danh sách lịch chiếu từ repository
+	schedules, err := h.ScheduleRepo.ReadSchedule(c.Request.Context(), scheduleId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving schedules", "details": err.Error()})
+		return
+	}
+
+	// Trả về danh sách lịch chiếu
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Schedules read successfully",
 		"data":    schedules,
 	})
 }

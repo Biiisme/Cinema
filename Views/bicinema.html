@@ -26,7 +26,6 @@
                                 <li><a href="">Phim tháng 9/2024</a></li>
                                 <li><a href="">Phim Việt Nam</a></li>
                             </ul>
-                        
                         </li>
                     </div>
                     <div class="item">
@@ -233,7 +232,7 @@
                 const movieItem = document.createElement("div");
                 movieItem.className = "movie-item";
                 movieItem.innerHTML = `
-                    <img src="${movie.image}" alt="${movie.filmName}">
+                    <img src="${movie.image}?height=400&width=300" alt="${movie.filmName}">
                     <button class="buy-ticket">Mua vé</button>
                     <div class="movie-info">
                         <h3>${movie.filmName}</h3>

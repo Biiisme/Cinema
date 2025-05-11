@@ -41,7 +41,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqFilm"
+                            "$ref": "#/definitions/req.FilmReq"
                         }
                     }
                 ],
@@ -414,28 +414,82 @@
         "model.Film": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "description": "Thời gian tạo",
+                "actors": {
+                    "description": "Diễn viên (mảng chuỗi)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "created_at": {
+                    "description": "Ngày tạo",
                     "type": "string"
                 },
-                "filmName": {
+                "description": {
+                    "description": "Mô tả",
+                    "type": "string"
+                },
+                "director": {
+                    "description": "Đạo diễn",
+                    "type": "string"
+                },
+                "duration": {
+                    "description": "Thời lượng",
+                    "type": "integer"
+                },
+                "end_date": {
+                    "description": "Ngày kết thúc (có thể null)",
+                    "type": "string"
+                },
+                "genre": {
+                    "description": "Thể loại (mảng chuỗi)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "description": "ID duy nhất của phim",
+                    "type": "integer"
+                },
+                "is_coming_soon": {
+                    "description": "Sắp chiếu?",
+                    "type": "boolean"
+                },
+                "is_now_showing": {
+                    "description": "Đang chiếu?",
+                    "type": "boolean"
+                },
+                "poster_url": {
+                    "description": "Link poster",
+                    "type": "string"
+                },
+                "rated": {
+                    "description": "Phân loại độ tuổi",
+                    "type": "string"
+                },
+                "rating_avg": {
+                    "description": "Điểm TB",
+                    "type": "number"
+                },
+                "rating_count": {
+                    "description": "Số lượt đánh giá",
+                    "type": "integer"
+                },
+                "release_date": {
+                    "description": "Ngày khởi chiếu",
+                    "type": "string"
+                },
+                "title": {
                     "description": "Tên phim",
                     "type": "string"
                 },
-                "image": {
-                    "description": "Đường dẫn ảnh",
+                "trailer_url": {
+                    "description": "Link trailer",
                     "type": "string"
                 },
-                "limitAge": {
-                    "description": "Giới hạn tuổi",
-                    "type": "integer"
-                },
-                "timefull": {
-                    "description": "Thời lượng phim",
-                    "type": "number"
-                },
-                "updatedAt": {
-                    "description": "Thời gian cập nhật",
+                "updated_at": {
+                    "description": "Ngày cập nhật",
                     "type": "string"
                 }
             }
@@ -479,20 +533,81 @@
                 }
             }
         },
-        "req.ReqFilm": {
+        "req.FilmReq": {
             "type": "object",
+            "required": [
+                "actors",
+                "description",
+                "director",
+                "duration",
+                "genre",
+                "poster_url",
+                "rated",
+                "release_date",
+                "title",
+                "trailer_url"
+            ],
             "properties": {
-                "filmName": {
+                "actors": {
+                    "description": "Danh sách diễn viên",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "description": "Mô tả nội dung",
                     "type": "string"
                 },
-                "image": {
+                "director": {
+                    "description": "Tên đạo diễn",
                     "type": "string"
                 },
-                "limitAge": {
-                    "type": "integer"
+                "duration": {
+                    "description": "Thời lượng (\u003e=1 phút)",
+                    "type": "integer",
+                    "minimum": 1
                 },
-                "timefull": {
-                    "type": "number"
+                "end_date": {
+                    "description": "Ngày kết thúc chiếu (có thể null)",
+                    "type": "string"
+                },
+                "genre": {
+                    "description": "Thể loại phim",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_coming_soon": {
+                    "description": "Sắp chiếu hay không",
+                    "type": "boolean"
+                },
+                "is_now_showing": {
+                    "description": "Đang chiếu hay không",
+                    "type": "boolean"
+                },
+                "poster_url": {
+                    "description": "Link ảnh poster",
+                    "type": "string"
+                },
+                "rated": {
+                    "description": "Phân loại độ tuổi",
+                    "type": "string"
+                },
+                "release_date": {
+                    "description": "Ngày khởi chiếu",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "Tên phim (bắt buộc)",
+                    "type": "string"
+                },
+                "trailer_url": {
+                    "description": "Link trailer",
+                    "type": "string"
                 }
             }
         },
