@@ -57,10 +57,10 @@ func (f *FilmRepoImpl) GetFilmByID(ctx context.Context, id string) (model.Film, 
 }
 
 // GetAllFilms for database
-func (f *FilmRepoImpl) GetAllFilms(ctx context.Context) ([]model.Film, error) {
+func (f *FilmRepoImpl) GetAllFilms(ctx context.Context, offset int, length int) ([]model.Film, error) {
 	var films []model.Film
 	// Get all films
-	if err := f.db.WithContext(ctx).Find(&films).Error; err != nil {
+	if err := f.db.WithContext(ctx).Limit(length).Offset(offset).Find(&films).Error; err != nil {
 		log.Println("Error retrieving all films:", err)
 		return nil, err
 	}
@@ -117,4 +117,13 @@ func (f *FilmRepoImpl) UpdateFilm(filmReq req.FilmReq, id string) (model.Film, e
 	}
 
 	return film, nil
+}
+
+func (f *FilmRepoImpl) TotalPage(film model.Film, length int) int {
+	var total int64
+
+	f.db.Model(&film).Count((&total))
+
+	totalPage := int((total + int64(length) - 1) / int64(length))
+	return totalPage
 }

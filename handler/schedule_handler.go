@@ -85,3 +85,26 @@ func (h *ScheduleHandler) HandleGetSchedulesByFilmID(c *gin.Context) {
 		"data":    schedules,
 	})
 }
+
+func (h *ScheduleHandler) HandleReadSchedule(c *gin.Context) {
+	id := c.Param("id")
+
+	scheduleId, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid film ID"})
+		return
+	}
+
+	// Lấy danh sách lịch chiếu từ repository
+	schedules, err := h.ScheduleRepo.ReadSchedule(c.Request.Context(), scheduleId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving schedules", "details": err.Error()})
+		return
+	}
+
+	// Trả về danh sách lịch chiếu
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Schedules read successfully",
+		"data":    schedules,
+	})
+}

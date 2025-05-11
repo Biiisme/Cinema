@@ -111,3 +111,52 @@ func (u *UserRepoImpl) SaveToken(ctx context.Context, userID string, token strin
 
 	return u.db.WithContext(ctx).Create(&newToken).Error
 }
+
+func (u *UserRepoImpl) GetUser(ctx context.Context, userID string) (model.User, error) {
+	var user model.User
+
+	if err := u.db.WithContext(ctx).Where("user_id = ?", userID).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return user, banana.UserNotFound
+		}
+		return user, err
+	}
+
+	return user, nil
+}
+
+func (f *UserRepoImpl) UpdateUser(userReq req.ReqUpdateProfile, id string) (model.User, error) {
+	// Using GORM to same film
+	var user model.User
+	if err := f.db.First(&user, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return user, banana.UserConfilict
+		}
+		log.Println("Error retrieving user by ID:", err)
+		return user, err
+	}
+
+	// Cập nhật các trường từ FilmReq vào Film
+	updateData := map[string]interface{}{
+		"full_name": userReq.FullName,
+		"email":     userReq.Email,
+	}
+	if userReq.BirthDate != "" {
+		parsedTime, _ := time.Parse("2006-01-02", userReq.BirthDate)
+		updateData["birth_date"] = parsedTime
+	}
+	if userReq.PhoneNumber != "" {
+		updateData["phone_number"] = userReq.PhoneNumber
+	}
+	if err := f.db.Model(&user).Updates(updateData).Error; err != nil {
+		// Check error is unique constraint for PostgreSQL
+		var pqErr *pq.Error
+		if ok := errors.As(err, &pqErr); ok && pqErr.Code.Name() == "unique_violation" {
+			return user, banana.UserConfilict
+		}
+		log.Println("Error saving user:", err)
+		return user, banana.SaveUserFail
+	}
+
+	return user, nil
+}

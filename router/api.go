@@ -26,14 +26,18 @@ func (r *API) SetupRouter() {
 	api.GET("/film/:id", r.FilmHandler.GetFilmByID)                              //Get_film_id
 	api.POST("/schedules", r.ScheduleHandler.HandleSaveSchedule)                 //Create schedule
 	api.GET("/schedules/film/:id", r.ScheduleHandler.HandleGetSchedulesByFilmID) //Get_schedule_filmID
-	api.POST("/hold-seat", r.BookingHandler.CheckSeat)
+	api.GET("/schedules/detail/:id", r.ScheduleHandler.HandleReadSchedule)
 	api.GET("/cinemas", r.CinemaHandler.GetAllCinemas)
 	api.GET("/seats/:id", r.SeatHandler.GetSeatbyFilmID)
 
 	customer := r.Router.Group("/customer")
 	customer.Use(security.JWTAuthMiddleware())
 	// Route for customer
-	customer.POST("/bookings", r.BookingHandler.CreateBooking) //Same bookling
+	customer.GET("/user/profile", r.UserHandler.HandleGetUser)
+	customer.PATCH("/update-profile/:id", r.UserHandler.HandleUpdateUser)
+	customer.POST("/hold-seat", r.BookingHandler.HoldSeat)
+	customer.GET("/get-hold-seat", r.BookingHandler.GetHoldSeatInfo)
+	//	customer.POST("/bookings", r.BookingHandler.CreateBooking) //Same bookling
 
 	// Route for admin
 	admin := api.Group("/admin")

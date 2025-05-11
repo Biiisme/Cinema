@@ -213,3 +213,78 @@ func (u *UserHandler) HandleSignIn(c *gin.Context) {
 		},
 	})
 }
+
+func (u *UserHandler) HandleGetUser(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+	userIDUstring, _ := userID.(string)
+
+	data, err := u.UserRepo.GetUser(c, userIDUstring)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusConflict,
+			Message:    "Get user bug",
+			Data:       nil,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Profile successfully",
+		Data: gin.H{
+			"data": data,
+		},
+	})
+}
+
+func (u *UserHandler) HandleUpdateUser(c *gin.Context) {
+	// Kiểm tra Content-Type
+	if c.GetHeader("Content-Type") != "application/json" {
+		c.JSON(http.StatusUnsupportedMediaType, model.Response{
+			StatusCode: http.StatusUnsupportedMediaType,
+			Message:    "Unsupported Media Type",
+			Data:       nil,
+		})
+		return
+	}
+	var req req.ReqUpdateProfile
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+		return
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, err.Error())
+		}
+		c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Invalid data",
+			Data:       validationErrors,
+		})
+		return
+	}
+
+	userID, _ := c.GetQuery("id")
+
+	savedUser, err := u.UserRepo.UpdateUser(req, userID)
+	if err != nil {
+		c.JSON(http.StatusConflict, model.Response{
+			StatusCode: http.StatusConflict,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Cập nhật user thành công",
+		Data:       savedUser,
+	})
+}

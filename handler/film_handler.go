@@ -4,6 +4,7 @@ import (
 	"cinema/model"
 	"cinema/model/req"
 	"cinema/repository"
+	"cinema/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -147,7 +148,12 @@ func (h *FilmHandler) GetFilmByID(c *gin.Context) {
 // @Router       /films [get]
 // GetAllFilms lấy tất cả phim
 func (h *FilmHandler) GetAllFilms(c *gin.Context) {
-	films, err := h.FilmRepo.GetAllFilms(c.Request.Context())
+	lengthstr := c.Query("length")
+	pagestr := c.Query("page")
+	page, length := utils.Pagination(pagestr, lengthstr)
+	offset := (page - 1) * length
+
+	films, err := h.FilmRepo.GetAllFilms(c.Request.Context(), offset, length)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.Response{
 			StatusCode: http.StatusInternalServerError,
@@ -157,10 +163,19 @@ func (h *FilmHandler) GetAllFilms(c *gin.Context) {
 		return
 	}
 
+	totalPage := h.FilmRepo.TotalPage(model.Film{}, length)
+
 	c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
 		Message:    "Lấy tất cả phim thành công",
-		Data:       films,
+		Data: gin.H{
+			"data": films,
+			"pagination": gin.H{
+				"current_page": page,
+				"page_size":    length,
+				"total_pages":  totalPage,
+			},
+		},
 	})
 }
 
