@@ -5,6 +5,7 @@ import (
 	"cinema/model/req"
 	"cinema/repository"
 	"cinema/utils"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -195,7 +196,7 @@ func (h *FilmHandler) GetAllFilms(c *gin.Context) {
 // @Router       /admin/delete-film/{id} [delete]
 func (h *FilmHandler) DeleteFilmByID(c *gin.Context) {
 	id := c.Param("id")
-
+	fmt.Println("id=========>", id)
 	film, err := h.FilmRepo.GetFilmByID(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, model.Response{

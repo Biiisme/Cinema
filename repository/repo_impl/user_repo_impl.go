@@ -160,3 +160,32 @@ func (f *UserRepoImpl) UpdateUser(userReq req.ReqUpdateProfile, id string) (mode
 
 	return user, nil
 }
+
+func (u *UserRepoImpl) GetAllUser(ctx context.Context, offset int, length int) ([]model.User, error) {
+	var users []model.User
+
+	if err := u.db.WithContext(ctx).Limit(length).Offset(offset).Find(&users).Error; err != nil {
+		log.Println("Error retrieving all user:", err)
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (u *UserRepoImpl) Delete(user model.User) error {
+	err := u.db.Unscoped().Delete(&user).Error
+	if err != nil {
+		log.Println("Error delete user")
+		return err
+	}
+	return nil
+}
+
+func (f *UserRepoImpl) TotalPage(user model.User, length int) int {
+	var total int64
+
+	f.db.Model(&user).Count((&total))
+
+	totalPage := int((total + int64(length) - 1) / int64(length))
+	return totalPage
+}
