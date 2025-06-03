@@ -30,7 +30,7 @@ func (g *GormDB) Migrate() {
 		&model.Film{},
 		&model.User{},
 		&model.Seat{},
-		&model.Booking{},
+		&model.Ticket{},
 		&model.Room{},
 		&model.Token{},
 	); err != nil {

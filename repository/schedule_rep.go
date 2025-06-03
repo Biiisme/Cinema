@@ -11,4 +11,5 @@ type ScheduleRepo interface {
 
 	GetSchedulesByFilmID(ctx context.Context, movieID int) ([]model.Schedule, error)
 	ReadSchedule(ctx context.Context, scheduleID int) (model.Schedule, error)
+	GetAllSchedule(ctx context.Context, offset int, length int) ([]model.Schedule, error)
 }

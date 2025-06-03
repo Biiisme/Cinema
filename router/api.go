@@ -12,7 +12,7 @@ type API struct {
 	UserHandler     handler.UserHandler
 	FilmHandler     handler.FilmHandler
 	ScheduleHandler handler.ScheduleHandler
-	BookingHandler  handler.BookingHandler
+	TicketHandler   handler.TicketHandler
 	CinemaHandler   handler.CinemaHandler
 	SeatHandler     handler.SeatHandler
 }
@@ -35,14 +35,16 @@ func (r *API) SetupRouter() {
 	// Route for customer
 	customer.GET("/user/profile", r.UserHandler.HandleGetUser)
 	customer.PATCH("/update-profile/:id", r.UserHandler.HandleUpdateUser)
-	customer.POST("/hold-seat", r.BookingHandler.HoldSeat)
-	customer.GET("/get-hold-seat", r.BookingHandler.GetHoldSeatInfo)
-	//	customer.POST("/bookings", r.BookingHandler.CreateBooking) //Same bookling
+	customer.POST("/hold-seat", r.TicketHandler.HoldSeat)
+	customer.GET("/get-hold-seat", r.TicketHandler.GetHoldSeatInfo)
+	customer.POST("/bookingticket", r.TicketHandler.CreateTicket)
 
 	// Route for admin
 	admin := api.Group("/admin")
-	admin.Use(security.AdminOnlyMiddleware())
+	admin.Use(security.JWTAuthMiddleware(), security.AdminOnlyMiddleware())
 	admin.POST("/add-film", r.FilmHandler.HandleSaveFilm)          //Add film
 	admin.DELETE("/delete-film/:id", r.FilmHandler.DeleteFilmByID) //Delete film
 	admin.PATCH("/update-film/:id", r.FilmHandler.HandleUpdateFilm)
+	admin.GET("/users", r.UserHandler.GetAllUser)
+	admin.GET("/schedules", r.ScheduleHandler.GetAllSchedule)
 }

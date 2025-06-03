@@ -12,4 +12,6 @@ type Schedule struct {
 	ShowTime time.Time `gorm:"not null" json:"showTime"` // Giờ chiếu
 
 	Cinema Cinemas `gorm:"foreignKey:CinemaID;references:ID" json:"cinema"`
+	Room   Room    `gorm:"foreignKey:RoomID;references:id" json:"room"`
+	Film   Film    `gorm:"foreignKey:FilmID;references:id" json:"film"`
 }

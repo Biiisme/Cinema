@@ -4,6 +4,7 @@ import (
 	"cinema/model"
 	"cinema/model/req"
 	"cinema/repository/repo_impl"
+	"cinema/utils"
 	"net/http"
 	"strconv"
 	"time"
@@ -106,5 +107,36 @@ func (h *ScheduleHandler) HandleReadSchedule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Schedules read successfully",
 		"data":    schedules,
+	})
+}
+func (s *ScheduleHandler) GetAllSchedule(c *gin.Context) {
+	lengthstr := c.Query("length")
+	pagestr := c.Query("page")
+	page, length := utils.Pagination(pagestr, lengthstr)
+	offset := (page - 1) * length
+
+	schedules, err := s.ScheduleRepo.GetAllSchedule(c.Request.Context(), offset, length)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+		return
+	}
+
+	totalPage := s.ScheduleRepo.TotalPage(model.Schedule{}, length)
+
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Lấy tất cả lịch chiếu thành công",
+		Data: gin.H{
+			"data": schedules,
+			"pagination": gin.H{
+				"current_page": page,
+				"page_size":    length,
+				"total_pages":  totalPage,
+			},
+		},
 	})
 }

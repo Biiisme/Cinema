@@ -45,7 +45,7 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//  CORS
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://127.0.0.1:3000", "http://127.0.0.1:5500"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://127.0.0.1:3000", "http://127.0.0.1:5501"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -69,15 +69,15 @@ func main() {
 	scheduleHandler := handler.ScheduleHandler{
 		ScheduleRepo: *repo_impl.NewScheduleRepoImpl(gormDB.DB),
 	}
-	bookhingHandler := handler.BookingHandler{
-		BookingRepo: repo_impl.NewBookingRepo(gormDB.DB),
+	ticketHandler := handler.TicketHandler{
+		TicketRepo: repo_impl.NewTicketRepo(gormDB.DB),
 	}
 	api := router.API{
 		Router:          r,
 		UserHandler:     userHandler,
 		FilmHandler:     filmHandler,
 		ScheduleHandler: scheduleHandler,
-		BookingHandler:  bookhingHandler,
+		TicketHandler:   ticketHandler,
 		CinemaHandler:   cinemaHandler,
 		SeatHandler:     seatHandler,
 	}
