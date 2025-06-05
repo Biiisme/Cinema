@@ -38,6 +38,7 @@ func (r *API) SetupRouter() {
 	customer.POST("/hold-seat", r.TicketHandler.HoldSeat)
 	customer.GET("/get-hold-seat", r.TicketHandler.GetHoldSeatInfo)
 	customer.POST("/bookingticket", r.TicketHandler.CreateTicket)
+	customer.GET("/list-ticket", r.TicketHandler.FindTicket)
 
 	// Route for admin
 	admin := api.Group("/admin")

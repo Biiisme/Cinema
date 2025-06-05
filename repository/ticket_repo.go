@@ -6,4 +6,5 @@ import (
 
 type TicketRepo interface {
 	SaveTicket(ticket model.Ticket) error
+	FindTicket(userId string) ([]model.Ticket, error)
 }

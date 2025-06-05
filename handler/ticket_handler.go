@@ -144,3 +144,25 @@ func (h *TicketHandler) GetHoldSeatInfo(c *gin.Context) {
 		"data": data,
 	})
 }
+
+func (h *TicketHandler) FindTicket(c *gin.Context) {
+
+	userID, _ := c.Get("user_id")
+	userIDUstring, _ := userID.(string)
+
+	tickets, err := h.TicketRepo.FindTicket(userIDUstring)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Lấy danh sách vé mua thành công thành công",
+		Data:       tickets,
+	})
+}
