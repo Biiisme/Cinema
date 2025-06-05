@@ -71,6 +71,7 @@ func main() {
 	}
 	ticketHandler := handler.TicketHandler{
 		TicketRepo: repo_impl.NewTicketRepo(gormDB.DB),
+		SeatRepo:   repo_impl.NewSeatRepoImpl(gormDB.DB),
 	}
 	api := router.API{
 		Router:          r,

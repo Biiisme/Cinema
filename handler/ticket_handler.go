@@ -16,10 +16,12 @@ import (
 
 type TicketHandler struct {
 	TicketRepo repository.TicketRepo
+	SeatRepo   repository.SeatRepo
 }
 
-func NewBookingHandler(ticketRepo repository.TicketRepo) *TicketHandler {
-	return &TicketHandler{TicketRepo: ticketRepo}
+func NewBookingHandler(ticketRepo repository.TicketRepo, seatRepo repository.SeatRepo) *TicketHandler {
+	return &TicketHandler{TicketRepo: ticketRepo, SeatRepo: seatRepo}
+
 }
 
 func (h *TicketHandler) CreateTicket(c *gin.Context) {
@@ -62,12 +64,29 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 		return
 	}
 
+	if h.SeatRepo == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Seat repository not initialized",
+		})
+		return
+	}
+	for _, seatId := range data.Seats {
+		err := h.SeatRepo.UpdateStatusSeat(c, seatId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, model.Response{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Mua vé không thành công",
+				Data:       nil,
+			})
+			return
+		}
+	}
+
 	c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
-		Message:    "Lưu ticket thành công",
+		Message:    "Mua vé thành công",
 		Data:       ticket,
 	})
-
 }
 
 func (h *TicketHandler) HoldSeat(c *gin.Context) {
@@ -123,5 +142,27 @@ func (h *TicketHandler) GetHoldSeatInfo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": data,
+	})
+}
+
+func (h *TicketHandler) FindTicket(c *gin.Context) {
+
+	userID, _ := c.Get("user_id")
+	userIDUstring, _ := userID.(string)
+
+	tickets, err := h.TicketRepo.FindTicket(userIDUstring)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Lấy danh sách vé mua thành công thành công",
+		Data:       tickets,
 	})
 }

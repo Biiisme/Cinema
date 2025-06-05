@@ -4,6 +4,7 @@ import (
 	"cinema/model"
 	"cinema/repository"
 	"context"
+	"fmt"
 	"log"
 
 	"gorm.io/gorm"
@@ -29,4 +30,11 @@ func (c *SeatRepoImpl) GetAllSeat(ctx context.Context, room_id int) ([]model.Sea
 	}
 
 	return seats, nil
+}
+
+func (c *SeatRepoImpl) UpdateStatusSeat(ctx context.Context, SeatId int) error {
+	fmt.Println("run1")
+	result := c.db.Model(&model.Seat{}).Where("id = ?", SeatId).Updates(map[string]interface{}{"status": "booked"})
+
+	return result.Error
 }
